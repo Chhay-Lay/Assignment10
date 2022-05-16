@@ -59,7 +59,7 @@
                         <li class="nav-item">
                             <a
                                 class="nav-link px-lg-3 py-3 py-lg-4"
-                                href="/post"
+                                href="/AddPost"
                                 >ADD POST</a
                             >
                         </li>
@@ -69,6 +69,14 @@
                                 class="nav-link px-lg-3 py-3 py-lg-4"
                                 href="/category"
                                 >Edit Category</a
+                            >
+                        </li>
+
+                        <li class="nav-item">
+                            <a
+                                class="nav-link px-lg-3 py-3 py-lg-4"
+                                href="/login"
+                                >Login</a
                             >
                         </li>
                         
@@ -100,84 +108,70 @@
                 <div class="col-md-10 col-lg-8 col-xl-7">
                     <!-- Post preview-->
                     <div class="post-preview">
-                        <a href="post.html">
-                            <h2 class="post-title">
-                                Man must explore, and this is exploration at its
-                                greatest
-                            </h2>
-                            <h3 class="post-subtitle">
-                                Problems look mighty small from 150 miles up
-                            </h3>
-                        </a>
+                        @foreach ($posts as $post)
+                        <h2 class="post-title">
+                            {{ $post->title }}
+                        </h2>
+                        <h3 class="post-subtitle">
+                            {{ $post->body }}
+                        </h3>
                         <p class="post-meta">
                             Posted by
-                            <a href="#!">Start Bootstrap</a>
-                            on September 24, 2022
+                            <i>{{ $post->user->name }}</i>
                         </p>
-                    </div>
-                    <!-- Divider-->
-                    <hr class="my-4" />
-                    <!-- Post preview-->
-                    <div class="post-preview">
-                        <a href="post.html"
-                            ><h2 class="post-title">
-                                I believe every human has a finite number of
-                                heartbeats. I don't intend to waste any of mine.
-                            </h2></a
-                        >
-                        <p class="post-meta">
-                            Posted by
-                            <a href="#!">Start Bootstrap</a>
-                            on September 18, 2022
-                        </p>
-                    </div>
-                    <!-- Divider-->
-                    <hr class="my-4" />
-                    <!-- Post preview-->
-                    <div class="post-preview">
-                        <a href="post.html">
-                            <h2 class="post-title">
-                                Science has not yet mastered prophecy
-                            </h2>
-                            <h3 class="post-subtitle">
-                                We predict too much for the next year and yet
-                                far too little for the next ten.
-                            </h3>
-                        </a>
-                        <p class="post-meta">
-                            Posted by
-                            <a href="#!">Start Bootstrap</a>
-                            on August 24, 2022
-                        </p>
-                    </div>
-                    <!-- Divider-->
-                    <hr class="my-4" />
-                    <!-- Post preview-->
-                    <div class="post-preview">
-                        <a href="post.html">
-                            <h2 class="post-title">Failure is not an option</h2>
-                            <h3 class="post-subtitle">
-                                Many say exploration is part of our destiny, but
-                                it’s actually our duty to future generations.
-                            </h3>
-                        </a>
-                        <p class="post-meta">
-                            Posted by
-                            <a href="#!">Start Bootstrap</a>
-                            on July 8, 2022
-                        </p>
-                    </div>
-                    <!-- Divider-->
-                    <hr class="my-4" />
-                    <!-- Pager-->
-                    <div class="d-flex justify-content-end mb-4">
-                        <a class="btn btn-primary text-uppercase" href="#!"
-                            >Older Posts →</a
-                        >
+
+                        @if ($post->user->id === auth()->id() || auth()->user()->isAdmin)
+                            <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary mx-1" data-toggle="modal" data-target="#exampleModal">
+                            Edit
+                        </button>
+                        
+                        <!-- Modal -->
+                        <div class="modal fade mx-1" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                </div>
+                                <form action="{{ route('post.update', $post->id)}}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="modal-body">
+                                        <input type="text" name="title">
+                                        <textarea name="body" cols="30" rows="10"></textarea>
+                                        <select name="category_id">
+                                            @if ($categories->count())
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->category_name }} </option>   
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                    
+                                </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <form action="{{ route('post.destroy', $post->id)}}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button name="delete-button" class="btn btn-danger">Delete</button>
+                        </form>
+                        @endif
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
+
+        {{ $posts->links('pagination::bootstrap-5') }}
         <!-- Footer-->
         <footer class="border-top">
             <div class="container px-4 px-lg-5">
@@ -228,9 +222,10 @@
                 </div>
             </div>
         </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="{{asset('js/scripts.js')}}"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </body>
 </html>

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Category;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,9 +17,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::get();
-        return view('category', [
-            'categories' => $categories
-        ]);
+        return view('addPost', ['categories' => $categories]);
     }
 
     /**
@@ -28,15 +28,30 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
-            'category_name' => 'required'
+        $this->validate($request, [
+            'title' => 'required',
+            'body' => 'required',
         ]);
 
-        Category::create([
-            'category_name' => $request->category_name
+        Post::create([
+            'user_id' => auth()->id(),
+            'category_id' => $request->category_id,
+            'title' => $request->title,
+            'body' => $request->body,
         ]);
 
         return back();
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
     }
 
     /**
@@ -47,9 +62,16 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        Category::where("id", $id)->update([
-            'category_name' => $request->Edit_category
+    {   
+        $this->validate($request, [
+            'title' => 'required',
+            'body' => 'required',
+        ]);
+
+        Post::where("id", $id)->update([
+            'category_id' => $request->category_id,
+            'title' => $request->title,
+            'body' => $request->body,
         ]);
 
         return back();
@@ -63,7 +85,7 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        Category::destroy($id);
+        Post::destroy($id);
         return back();
     }
 }

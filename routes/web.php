@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Post;
+use App\Models\Category;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,17 +18,20 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('index');
+    $posts = Post::paginate(10);
+    $categories = Category::get();
+    return view('index', ['posts' => $posts, 'categories' => $categories]);
 });
 
-Route::get('/post', function () {
-    return view('post');
-});
+Route::get('/AddPost', [PostController::class, 'index'])->name('AddPost');
+Route::post('/AddPost', [PostController::class, 'store']);
+Route::patch('/{id}', [PostController::class, 'update'])->name('post.update');
+Route::delete('/{id}', [PostController::class, 'destroy'])->name('post.destroy');
 
 Route::get('/category', [CategoryController::class,'index'])->name('category');
 Route::post('/category', [CategoryController::class,'store']);
-Route::patch('/category/{category}', [CategoryController::class,'update'])->name('category.update');
-Route::delete('/category/{category}', [CategoryController::class,'destroy'])->name('category.destroy');
+Route::patch('/category/{id}', [CategoryController::class,'update'])->name('category.update');
+Route::delete('/category/{id}', [CategoryController::class,'destroy'])->name('category.destroy');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
