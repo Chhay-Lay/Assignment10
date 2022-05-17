@@ -63,15 +63,18 @@
                                 >ADD POST</a
                             >
                         </li>
-
-                        <li class="nav-item">
-                            <a
-                                class="nav-link px-lg-3 py-3 py-lg-4"
-                                href="/category"
-                                >Edit Category</a
-                            >
-                        </li>
-
+                        @if (auth()->check())
+                         @if (auth()->user()->isAdmin)
+                            <li class="nav-item">
+                                <a
+                                    class="nav-link px-lg-3 py-3 py-lg-4"
+                                    href="/category"
+                                    >Edit Category</a
+                                >
+                            </li>
+                         @endif
+                            
+                        @endif
                         <li class="nav-item">
                             <a
                                 class="nav-link px-lg-3 py-3 py-lg-4"
@@ -119,7 +122,7 @@
                             Posted by
                             <i>{{ $post->user->name }}</i>
                         </p>
-
+                        @if (auth()->check())
                         @if ($post->user->id === auth()->id() || auth()->user()->isAdmin)
                             <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary mx-1" data-toggle="modal" data-target="#exampleModal">
@@ -164,6 +167,7 @@
                             @method('DELETE')
                             <button name="delete-button" class="btn btn-danger">Delete</button>
                         </form>
+                        @endif
                         @endif
                         @endforeach
                     </div>
